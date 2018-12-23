@@ -2,14 +2,28 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<meta name="title" content="Simon dice">
+		<meta name="description" content="Proyecto curso JavaScript - Platzi">
 		<title>Simon Dice</title>
 		<style>
 			body {
-				margin: 0;
-				background: #dedede;
+				background:#D5F5E3;
+				/*margin: 0;
 				display: flex;
 				align-items: center;
-				height: 100vh;
+				height: 100vh;*/
+			}
+
+			h1 {
+				top: 0;
+				text-align: center;
+				width: 100%;
+				font-family: 'Bungee Outline', cursive;
+				color: #00b894;
+				font-size: 40px;
+				margin: 0;
 			}
 
 			.gameboard {
@@ -86,15 +100,47 @@
 			* {
 				font-family: 'Arial';
 			}
+
+			.item1 { grid-area: header; }
+			.item3 { grid-area: main; }
+			.item5 { grid-area: footer; }
+
+			.grid-container {
+				display: grid;
+				grid-template-areas:
+				'header header header header header header'
+				'main main main main main main'
+				'footer footer footer footer footer footer';
+				grid-gap: 10px;
+				/*background-color: #2196F3;*/
+				padding: 10px;
+			}
+
+			.grid-container > div {
+				/*background-color: rgba(255, 255, 255, 0.8);*/
+				text-align: center;
+				padding: 20px 0;
+				/*font-size: 20px;*/
+			}
 		</style>
 	</head>
 	<body>
-		<div class="gameboard">
-			<div id="celeste" class="color celeste left" data-color="celeste"></div>
-			<div id="violeta" class="color violeta right" data-color="violeta"></div>
-			<div id="naranja" class="color naranja left" data-color="naranja"></div>
-			<div id="verde" class="color verde right" data-color="verde"></div>
-			<button id="btnEmpezar" class="btn-start" onclick="empezarJuego()">Empezar a jugar!</button>
+		<div class="grid-container">
+			<div class="item1">
+				<h1>Simon dice</h1>
+			</div>
+			<div class="item3">
+				<div class="gameboard">
+					<div id="celeste" class="color celeste left" data-color="celeste"></div>
+					<div id="violeta" class="color violeta right" data-color="violeta"></div>
+					<div id="naranja" class="color naranja left" data-color="naranja"></div>
+					<div id="verde" class="color verde right" data-color="verde"></div>
+					<button id="btnEmpezar" class="btn-start" onclick="empezarJuego()">Empezar a jugar!</button>
+				</div>
+			</div>
+			<div class="item5">
+				Tiempo de juego <div id="time">0</div>
+			</div>
 		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 		<script>
@@ -103,20 +149,21 @@
 				const naranja = document.getElementById('naranja')
 				const verde = document.getElementById('verde')
 				const btnEmpezar = document.getElementById('btnEmpezar')
-				const ULTIMO_NIVEL = 10
+				const ULTIMO_NIVEL = 3
 
 				class Juego {
 					constructor() {
 						this.inicializar = this.inicializar.bind(this)
 						this.inicializar()
 						this.generarSecuencia()
-						setTimeout(this.siguienteNivel, 500)
+						this.mensajeInicial()
 					}
 
 					inicializar() {
 						this.siguienteNivel = this.siguienteNivel.bind(this)
 						this.elegirColor = this.elegirColor.bind(this)
 						this.toggleBtnEmpezar()
+						this.inicializarTiempoRespuesta()
 						this.nivel = 1
 						this.colores = {
 							celeste,
@@ -142,6 +189,41 @@
 						this.subnivel = 0
 						this.iluminarSecuencia()
 						this.agregarEventosClick()
+					}
+
+					mensajeInicial() {
+						swal('Simon dice', 'Nivel 1', {
+							buttons: false,
+							timer: 1500
+						})
+							.then(() => {
+								setTimeout(this.siguienteNivel, 800)
+							})
+					}
+
+					inicializarTiempoRespuesta() {
+						document.getElementById('time').innerHTML = 0
+						this.tiempo = 0
+					}
+
+					expirarTiempoRespuesta() {
+						this.tiempoExpiracion = setInterval(() => {
+							this.tiempo += 1
+							document.getElementById('time').innerHTML = this.tiempo
+						}, 1000)
+						this.temporizadorRespuesta = setTimeout(() => {
+							clearInterval(this.tiempoExpiracion)
+							swal('Simon dice', 'Expiro el tiempo para responder', {
+								buttons: false,
+								timer: 3000
+							})
+								.then(() => {
+									clearInterval(this.tiempoExpiracion)
+									clearTimeout(this.temporizadorRespuesta)
+									this.eliminarEventosClick()
+									this.inicializar()
+								})
+						}, 20000);
 					}
 
 					transformarNumeroAColor(num) {
@@ -171,10 +253,15 @@
 					}
 
 					iluminarSecuencia() {
-						for (let i = 0; i < this.nivel; i++) {
+						let i = 0
+						for (i; i < this.nivel; i++) {
 							const color = this.transformarNumeroAColor(this.secuencia[i])
 							setTimeout(() => this.iluminarColor(color), 1000 * i)
 						}
+
+						setTimeout(() => {
+							this.expirarTiempoRespuesta()
+						}, 500 * i);
 					}
 
 					iluminarColor(color) {
@@ -206,14 +293,18 @@
 						this.iluminarColor(nombreColor)
 						if (numeroColor === this.secuencia[this.subnivel]) {
 							this.subnivel++
-							console
 							if (this.subnivel === this.nivel) {
 								this.nivel++
 								this.eliminarEventosClick()
 								if (this.nivel === (ULTIMO_NIVEL + 1)) {
 									this.ganoElJuego()
 								} else {
-									setTimeout(this.siguienteNivel, 1500);
+									clearInterval(this.tiempoExpiracion)
+									clearTimeout(this.temporizadorRespuesta)
+									setTimeout(() => {
+										this.avanzarSiguienteNivel(this.nivel)
+										this.inicializarTiempoRespuesta()
+									}, 1300);
 								}
 							}
 						} else {
@@ -222,15 +313,34 @@
 					}
 
 					ganoElJuego() {
-						swal('Platzi', 'Felicitaciones, ganaste el juego', 'success')
-							.then(this.inicializar)
+						swal('Simon dice', 'Felicitaciones ganaste el juego 😃', 'success')
+							.then(() => {
+								clearInterval(this.tiempoExpiracion)
+								clearTimeout(this.temporizadorRespuesta)
+								this.eliminarEventosClick()
+								this.inicializar()
+							})
 					}
 
 					perdioElJuego() {
-						swal('Platzi', 'Lo lamentamos, perdiste :(', 'error')
+						swal('Simon dice', 'Lo lamentamos, perdiste 😣', 'error')
 							.then(() => {
+								clearInterval(this.tiempoExpiracion)
+								clearTimeout(this.temporizadorRespuesta)
 								this.eliminarEventosClick()
 								this.inicializar()
+							})
+					}
+
+					avanzarSiguienteNivel(nivel) {
+						let text = `Muy bien, avanzas al nivel ${nivel}`
+						swal('Simon dice', text,{
+							buttons: false,
+							icon: 'success',
+							timer: 2500
+						})
+							.then(() => {
+								setTimeout(this.siguienteNivel, 1500)
 							})
 					}
 				}
