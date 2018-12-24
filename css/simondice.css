@@ -1,0 +1,114 @@
+body {
+    background:#D5F5E3;
+    /*margin: 0;
+    display: flex;
+    align-items: center;
+    height: 100vh;*/
+}
+
+h1 {
+    top: 0;
+    text-align: center;
+    width: 100%;
+    font-family: 'Bungee Outline', cursive;
+    color: #00b894;
+    font-size: 40px;
+    margin: 0;
+}
+
+.gameboard {
+    height: 100vh;
+    width: 100vh;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+    max-height: 60vh;
+    max-width: 60vh;
+}
+
+.color {
+    width: 50%;
+    height: 50%;
+    display: inline-block;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: left;
+}
+
+.celeste {
+    background: #22a6b3;
+}
+
+.celeste.light {
+    background: #7ed6df;
+}
+
+.violeta {
+    background: #be2edd;
+}
+
+.violeta.light {
+    background: #e056fd;
+}
+
+.naranja {
+    background: #f0932b;
+}
+
+.naranja.light {
+    background: #ffbe76;
+}
+
+.verde {
+    background: #6ab04c;
+}
+
+.verde.light {
+    background: #badc58;
+}
+
+.btn-start {
+    width: 400px;
+    height: 100px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    font-size: 2.5rem;
+    position: absolute;
+    top: calc(50% - 50px);
+    left: calc(50% - 200px);
+}
+
+.hide {
+    display: none;
+}
+
+* {
+    font-family: 'Arial';
+}
+
+.item1 { grid-area: header; }
+.item3 { grid-area: main; }
+.item5 { grid-area: footer; }
+
+.grid-container {
+    display: grid;
+    grid-template-areas:
+    'header header header header header header'
+    'main main main main main main'
+    'footer footer footer footer footer footer';
+    grid-gap: 10px;
+    /*background-color: #2196F3;*/
+    padding: 10px;
+}
+
+.grid-container > div {
+    /*background-color: rgba(255, 255, 255, 0.8);*/
+    text-align: center;
+    padding: 20px 0;
+    /*font-size: 20px;*/
+}
